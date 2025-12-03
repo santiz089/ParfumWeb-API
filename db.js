@@ -1,8 +1,8 @@
 // db.js (Código Final para Railway)
 const mysql = require('mysql2/promise'); 
 
-// 🚨 CORRECCIÓN CLAVE: Se eliminan todos los valores de fallback (|| 'localhost', etc.)
-// Esto obliga al pool a usar process.env.DB_HOST, etc., que Railway ya configuró.
+// Eliminamos todos los valores de fallback (|| 'valor') para forzar el uso de las variables de entorno de Railway.
+// Estas variables contienen las credenciales correctas del servicio parfumweb-db.
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -14,13 +14,12 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Este pool ya tiene la funcionalidad de 'promise'
 const promisePool = pool; 
 
 // Conexión de prueba (opcional, pero útil para depuración)
 pool.getConnection((err, connection) => {
     if (err) {
-        // En Railway, este error es común si las variables no están bien configuradas.
+        // En Railway, si persiste el ECONNREFUSED es porque las variables de entorno no se leyeron.
         console.error('❌ Error conectando a MySQL:', err.code);
         if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
             console.error('La conexión con la base de datos ha fallado. Revisar variables de entorno.');
