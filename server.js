@@ -1,9 +1,11 @@
 const express = require('express');
 const path = require('path');
 const db = require('./db');
-const stripe = require('stripe')('sk_test_51SZYglRZm8Mvgir84MxI24RdjOPVUUZbLFkrV88FiTfo10wcmp9JCAKgHE8vLtBZvEI1xj4XSrCQjumxVtjmrTiE00oL99z3Xt'); 
+// 🚨 CAMBIO 1: Usar la variable de entorno para la clave de Stripe
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); 
 const app = express();
-const PORT = 3000;
+// 🚨 CAMBIO 2: Usar la variable de entorno PORT o un puerto de fallback (8080)
+const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -221,12 +223,15 @@ app.post('/api/checkout', async (req, res) => {
             quantity: item.quantity,
         }));
 
+        const publicUrl = process.env.RAILWAY_PUBLIC_URL || `http://localhost:${PORT}`;
+        
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: line_items,
             mode: 'payment',
-            success_url: `http://localhost:3000/success.html?orderId=${orderId}`,
-            cancel_url: `http://localhost:3000/cancel.html`,
+            // 🚨 CAMBIO 3: Usar la URL pública de Railway para redirección
+            success_url: `${publicUrl}/success.html?orderId=${orderId}`, 
+            cancel_url: `${publicUrl}/cancel.html`,
         });
 
         res.json({ success: true, url: session.url });
