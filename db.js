@@ -1,36 +1,36 @@
-// db.js (Código Final para Railway)
-const mysql = require('mysql2/promise'); 
+// db.js (Versión Blindada y con Logs)
+const mysql = require('mysql2/promise');
 
-// Eliminamos todos los valores de fallback (|| 'valor') para forzar el uso de las variables de entorno de Railway.
-// Estas variables contienen las credenciales correctas del servicio parfumweb-db.
+// 🔍 LOGS DE DEPURACIÓN (Para ver qué está leyendo Railway)
+console.log("---- INTENTO DE CONEXIÓN A BASE DE DATOS ----");
+console.log("DB_HOST:", process.env.DB_HOST || process.env.MYSQLHOST || "NO DEFINIDO");
+console.log("DB_USER:", process.env.DB_USER || process.env.MYSQLUSER || "NO DEFINIDO");
+console.log("DB_PORT:", process.env.DB_PORT || process.env.MYSQLPORT || "NO DEFINIDO");
+console.log("DB_NAME:", process.env.DB_NAME || process.env.MYSQLDATABASE || "NO DEFINIDO");
+console.log("---------------------------------------------");
+
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+    // Buscamos la variable tuya O la variable por defecto de Railway
+    host: process.env.DB_HOST || process.env.MYSQLHOST, 
+    user: process.env.DB_USER || process.env.MYSQLUSER,
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'railway',
+    port: process.env.DB_PORT || process.env.MYSQLPORT,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
-const promisePool = pool; 
+const promisePool = pool;
 
-// Conexión de prueba (opcional, pero útil para depuración)
 pool.getConnection((err, connection) => {
     if (err) {
-        // En Railway, si persiste el ECONNREFUSED es porque las variables de entorno no se leyeron.
-        console.error('❌ Error conectando a MySQL:', err.code);
-        if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
-            console.error('La conexión con la base de datos ha fallado. Revisar variables de entorno.');
-        } else {
-            console.error('Error desconocido al conectar a DB:', err.message);
-        }
+        console.error('❌ Error fatal conectando a MySQL:', err.code);
+        console.error('Detalles del error:', err.message);
     } else {
-        console.log('✅ Conectado exitosamente a la Base de Datos MySQL');
+        console.log('✅ ¡Conectado exitosamente a la Base de Datos Remota!');
         connection.release();
     }
 });
 
-// Exportamos el pool con soporte para promesas
 module.exports = promisePool;
