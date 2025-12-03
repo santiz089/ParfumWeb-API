@@ -1,19 +1,33 @@
-const mysql = require('mysql2/promise');
+const sqlite3 = require("sqlite3").verbose();
+const db = new sqlite3.Database("./database/perfumes.db");
 
-// 🚨 validación estricta
-if (!process.env.DB_HOST && !process.env.MYSQLHOST) {
-    console.error('🔥 ERROR CRÍTICO: No hay variables de entorno para la Base de Datos.');
-}
+db.serialize(() => {
+  // Tabla usuarios
+  db.run(`CREATE TABLE IF NOT EXISTS usuarios(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT,
+      email TEXT UNIQUE,
+      password TEXT
+  )`);
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || process.env.MYSQLHOST,
-    user: process.env.DB_USER || process.env.MYSQLUSER,
-    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-    database: process.env.DB_NAME || process.env.MYSQLDATABASE,
-    port: process.env.DB_PORT || process.env.MYSQLPORT,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  // Tabla productos
+  db.run(`CREATE TABLE IF NOT EXISTS productos(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT,
+      precio REAL,
+      imagen TEXT,
+      descripcion TEXT
+  )`);
+
+  // Tabla carrito
+  db.run(`CREATE TABLE IF NOT EXISTS carrito(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      usuario_id INTEGER,
+      producto_id INTEGER,
+      cantidad INTEGER,
+      FOREIGN KEY(usuario_id) REFERENCES usuarios(id),
+      FOREIGN KEY(producto_id) REFERENCES productos(id)
+  )`);
 });
 
-module.exports = pool;
+module.exports = db;
