@@ -1,12 +1,13 @@
 // db.js
-// Usamos 'mysql2/promise' para la sintaxis async/await
 const mysql = require('mysql2/promise'); 
 
+// 🚨 CAMBIO CLAVE: Usar process.env para todas las credenciales
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'admin',
-    password: '1234',
-    database: 'parfum_db',
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'admin',
+    password: process.env.DB_PASSWORD || '1234',
+    database: process.env.DB_NAME || 'parfum_db',
+    port: process.env.DB_PORT || 3306, // Agregamos process.env.DB_PORT
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -15,17 +16,15 @@ const pool = mysql.createPool({
 // Este pool ya tiene la funcionalidad de 'promise'
 const promisePool = pool; 
 
+// Conexión de prueba (opcional, pero útil para depuración)
 pool.getConnection((err, connection) => {
     if (err) {
+        // En Railway, este error es común si las variables no están bien configuradas.
         console.error('❌ Error conectando a MySQL:', err.code);
-        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-            console.error('La conexión con la base de datos se cerró.');
-        }
-        if (err.code === 'ER_CON_COUNT_ERROR') {
-            console.error('La base de datos tiene muchas conexiones.');
-        }
-        if (err.code === 'ECONNREFUSED') {
-            console.error('La conexión fue rechazada. ¿Está prendido MySQL?');
+        if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
+            console.error('La conexión con la base de datos ha fallado. Revisar variables de entorno.');
+        } else {
+            console.error('Error desconocido al conectar a DB:', err.message);
         }
     } else {
         console.log('✅ Conectado exitosamente a la Base de Datos MySQL');
