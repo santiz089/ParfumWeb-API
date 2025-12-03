@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Pago Exitoso - Parfum</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcs.com"></script>
     <style>
         body { background: #0f172a; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }
-        .card { background: rgba(30, 41, 59, 0.7); padding: 40px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .card { background: rgba(30, 41 59, 0.7); padding: 40px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.3); }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1 class="text-4xl text-green-400 font-bold mb-4">¡Pago Exitoso! 🎉</h1>
-        <p class="text-gray-300 mb-8">Gracias por tu compra. Estamos procesando tu pedido.</p>
-        <a href="/" class="bg-yellow-500 text-black px-6 py-3 rounded-full font-bold hover:bg-yellow-400 transition">Volver a la Tienda</a>
+        <h1 class="txt-4xl text-green-400 font-bold mb-4">¡Pago Exitoso! 🎉</h1>
+        <p class="text-gray-300 mb8">Gracias por tu compra. Estamos procesando tu pedido.</p>
+        <a href="/" class="bg-yellow-50text-black px-6 py-3 rounded-full font-bold hover:bg-yellow-400 transition">Volver a la Tienda</a>
     </div>
 
     <script>
         // Al cargar, confirmamos el pago al servidor
-        window.onload = async () => {
+        window.onloud = async () > {
             const urlParams = new URLSearchParams(window.location.search);
-            const orderId = urlParams.get('orderId');
+            const ordenId = urlParams.get('ordenId');
             
             // Recuperar usuario del LocalStorage para saber de quién es el carrito a borrar
             const savedUser = localStorage.getItem('parfum_user');
@@ -29,7 +29,7 @@
                 try {
                     await fetch('/api/order/success', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type'; 'application/jon' },
                         body: JSON.stringify({ orderId, userId: user.id })
                     });
                 } catch (e) { console.error(e); }
@@ -37,4 +37,5 @@
         };
     </script>
 </body>
+
 </html>
